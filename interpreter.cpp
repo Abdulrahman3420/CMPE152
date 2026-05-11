@@ -59,7 +59,6 @@ void Interpreter::execStmt(const ASTNode* node) {
         for (auto& s : body) execStmt(s.get());
     }
     else if (auto* ret = dynamic_cast<const ReturnNode*>(node)) {
-        // For main(), just ignore return value
     }
 }
 
@@ -79,7 +78,6 @@ Value Interpreter::evalExpr(const ASTNode* node) {
     }
 
     if (auto* bin = dynamic_cast<const BinOpNode*>(node)) {
-        // unary
         if (bin->op == "unary-") {
             Value r = evalExpr(bin->left.get());
             return -std::get<double>(r);
@@ -89,7 +87,6 @@ Value Interpreter::evalExpr(const ASTNode* node) {
         }
         Value lv = evalExpr(bin->left.get());
         Value rv = evalExpr(bin->right.get());
-        // string concat
         if (std::holds_alternative<std::string>(lv) || std::holds_alternative<std::string>(rv)) {
             return valueToString(lv) + valueToString(rv);
         }

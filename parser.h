@@ -4,8 +4,6 @@
 #include <vector>
 #include <string>
 
-// ─── AST Nodes ───────────────────────────────────────────────────────────────
-
 struct ASTNode {
     virtual ~ASTNode() = default;
     virtual std::string nodeType() const = 0;
@@ -13,7 +11,6 @@ struct ASTNode {
 };
 using NodePtr = std::unique_ptr<ASTNode>;
 
-// Literals
 struct NumNode : ASTNode {
     double value;
     NumNode(double v) : value(v) {}
@@ -35,7 +32,6 @@ struct StringNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// Variable access
 struct VarAccessNode : ASTNode {
     std::string name;
     VarAccessNode(const std::string& n) : name(n) {}
@@ -43,7 +39,6 @@ struct VarAccessNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// Binary operation
 struct BinOpNode : ASTNode {
     std::string op;
     NodePtr left, right;
@@ -53,7 +48,6 @@ struct BinOpNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// Comparison
 struct ComparisonNode : ASTNode {
     std::string op;
     NodePtr left, right;
@@ -63,7 +57,6 @@ struct ComparisonNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// Variable declaration: int x = expr;
 struct VarDeclNode : ASTNode {
     std::string type, name;
     NodePtr init;
@@ -73,7 +66,6 @@ struct VarDeclNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// Assignment: x = expr;
 struct VarAssignNode : ASTNode {
     std::string name;
     NodePtr value;
@@ -82,7 +74,6 @@ struct VarAssignNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// Increment/Decrement
 struct IncrementNode : ASTNode {
     std::string name, op;
     IncrementNode(std::string n, std::string o) : name(std::move(n)), op(std::move(o)) {}
@@ -90,7 +81,6 @@ struct IncrementNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// If / else
 struct IfNode : ASTNode {
     NodePtr condition;
     std::vector<NodePtr> ifBody, elseBody;
@@ -100,7 +90,6 @@ struct IfNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// cout << expr << endl;
 struct PrintNode : ASTNode {
     std::vector<NodePtr> items;
     PrintNode(std::vector<NodePtr> it) : items(std::move(it)) {}
@@ -108,7 +97,6 @@ struct PrintNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// Return statement
 struct ReturnNode : ASTNode {
     NodePtr value;
     ReturnNode(NodePtr v) : value(std::move(v)) {}
@@ -116,15 +104,12 @@ struct ReturnNode : ASTNode {
     void print(int i = 0) const override;
 };
 
-// Top-level program
 struct ProgramNode : ASTNode {
     std::vector<NodePtr> statements;
     ProgramNode(std::vector<NodePtr> s) : statements(std::move(s)) {}
     std::string nodeType() const override { return "Program"; }
     void print(int i = 0) const override;
 };
-
-// ─── Parser ──────────────────────────────────────────────────────────────────
 
 struct ParseError {
     int line;

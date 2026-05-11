@@ -7,8 +7,8 @@ std::string CodeGen::newLabel() { return "L" + std::to_string(labelCount++); }
 
 void CodeGen::generate(const ProgramNode& prog) {
     ir.str(""); asm_.str("");
-    ir  << "; === Intermediate Representation (3-Address Code) ===\n";
-    asm_ << "; === x86-like Assembly Code ===\n";
+    ir  << "; Intermediate Representation (3-Address Code)\n";
+    asm_ << "; x86-like Assembly Code\n";
     asm_ << "section .data\n";
     asm_ << "section .text\n";
     asm_ << "global main\n";

@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 
-// ─── AST print helpers ───────────────────────────────────────────────────────
 static std::string ind(int n) { return std::string(n * 2, ' '); }
 
 void NumNode::print(int i) const {
@@ -61,7 +60,6 @@ void ProgramNode::print(int i) const {
     for (auto& s : statements) s->print(i + 1);
 }
 
-// ─── Parser ──────────────────────────────────────────────────────────────────
 Parser::Parser(const std::vector<Token>& tokens) : toks(tokens), pos(0) {}
 
 Token& Parser::current() { return toks[pos]; }
@@ -77,7 +75,7 @@ bool Parser::match(TokenType t) {
 Token Parser::eat(TokenType expected, const std::string& msg) {
     if (check(expected)) { Token t = current(); pos++; return t; }
     errs.push_back({current().line, msg + " (got '" + current().value + "')"});
-    return current(); // don't advance — let caller recover
+    return current();
 }
 
 void Parser::syncToNextStatement() {
@@ -93,12 +91,10 @@ std::unique_ptr<ProgramNode> Parser::parse() { return parseProgram(); }
 
 std::unique_ptr<ProgramNode> Parser::parseProgram() {
     std::vector<NodePtr> stmts;
-    // skip #include lines
     while (check(TokenType::HASH)) {
         pos++;
         while (!check(TokenType::END_OF_FILE) && current().line == toks[pos-1].line) pos++;
     }
-    // skip "int main() {"
     while (!check(TokenType::LBRACE) && !check(TokenType::END_OF_FILE)) pos++;
     if (check(TokenType::LBRACE)) pos++;
 
@@ -113,7 +109,6 @@ std::unique_ptr<ProgramNode> Parser::parseProgram() {
 }
 
 NodePtr Parser::parseStatement() {
-    // Variable declarations
     if (check(TokenType::KW_INT) || check(TokenType::KW_FLOAT) || check(TokenType::KW_BOOL)) {
         std::string typeName = current().value; pos++;
         return parseVarDecl(typeName);
@@ -122,7 +117,6 @@ NodePtr Parser::parseStatement() {
     if (check(TokenType::KW_IF))      return parseIf();
     if (check(TokenType::KW_RETURN))  return parseReturn();
     if (check(TokenType::IDENTIFIER)) return parseAssignOrIncrement();
-    // skip unknown tokens
     if (!check(TokenType::END_OF_FILE)) {
         errs.push_back({current().line, "Unexpected token '" + current().value + "'"});
         syncToNextStatement();
@@ -161,7 +155,7 @@ NodePtr Parser::parseAssignOrIncrement() {
 }
 
 NodePtr Parser::parsePrint() {
-    pos++; // consume cout
+    pos++;
     eat(TokenType::LSHIFT, "Expected '<<' after 'cout'");
     std::vector<NodePtr> items;
     while (true) {
@@ -178,7 +172,7 @@ NodePtr Parser::parsePrint() {
 }
 
 NodePtr Parser::parseIf() {
-    pos++; // consume if
+    pos++;
     eat(TokenType::LPAREN, "Expected '(' after 'if'");
     auto cond = parseExpr();
     eat(TokenType::RPAREN, "Expected ')' after condition");
@@ -192,7 +186,7 @@ NodePtr Parser::parseIf() {
 }
 
 NodePtr Parser::parseReturn() {
-    pos++; // consume return
+    pos++;
     NodePtr val;
     if (!check(TokenType::SEMICOLON)) val = parseExpr();
     eat(TokenType::SEMICOLON, "Expected ';' after return");
@@ -215,7 +209,6 @@ std::vector<NodePtr> Parser::parseBlock() {
     return stmts;
 }
 
-// ─── Expression parsing (precedence climbing) ────────────────────────────────
 NodePtr Parser::parseExpr()       { return parseComparison(); }
 
 NodePtr Parser::parseComparison() {

@@ -3,23 +3,18 @@
 #include <vector>
 
 enum class TokenType {
-    // Literals
     NUMBER, FLOAT_NUM, STRING_LIT, IDENTIFIER,
-    // Keywords
     KW_INT, KW_FLOAT, KW_BOOL, KW_TRUE, KW_FALSE,
     KW_IF, KW_ELSE, KW_COUT, KW_ENDL,
     KW_INCLUDE, KW_MAIN, KW_RETURN,
-    // Operators
     PLUS, MINUS, STAR, SLASH, PERCENT,
     ASSIGN,
     EQ, NEQ, LT, GT, LEQ, GEQ,
     AND, OR, NOT,
     INC, DEC,
-    // Punctuation
     LPAREN, RPAREN, LBRACE, RBRACE,
     SEMICOLON, COMMA, HASH, DOT,
-    LSHIFT, // <<
-    // Special
+    LSHIFT,
     END_OF_FILE, UNKNOWN
 };
 

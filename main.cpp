@@ -6,7 +6,6 @@
 #include "interpreter.h"
 #include "codegen.h"
 
-// ─── Token type name for display ─────────────────────────────────────────────
 std::string tokenTypeName(TokenType t) {
     switch (t) {
         case TokenType::NUMBER:     return "NUMBER";
@@ -55,12 +54,8 @@ std::string tokenTypeName(TokenType t) {
     }
 }
 
-// ─── Pretty banner ────────────────────────────────────────────────────────────
 void banner(const std::string& title) {
-    std::string line(60, '=');
-    std::cout << "\n" << line << "\n";
-    std::cout << "  " << title << "\n";
-    std::cout << line << "\n";
+    std::cout << "\n" << title << "\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -69,29 +64,21 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // ── Read source file ──────────────────────────────────────────────────────
     std::ifstream file(argv[1]);
     if (!file) { std::cerr << "Error: cannot open '" << argv[1] << "'\n"; return 1; }
     std::ostringstream buf;
     buf << file.rdbuf();
     std::string source = buf.str();
 
-    std::cout << "\n╔══════════════════════════════════════════════════════════╗\n";
-    std::cout <<   "║         Simple C++ Compiler  — CMPE 152 Project         ║\n";
-    std::cout <<   "╚══════════════════════════════════════════════════════════╝\n";
-    std::cout << "\nCompiling: " << argv[1] << "\n";
+    std::cout << "Simple C++ Compiler - CMPE 152\n";
+    std::cout << "Compiling: " << argv[1] << "\n";
 
-    // ── 1. LEXER — Token Generation ───────────────────────────────────────────
     banner("PHASE 1: LEXICAL ANALYSIS — Token Generation");
     Lexer lexer(source);
     std::vector<Token> tokens = lexer.tokenize();
 
-    // Classify and print all tokens
     std::cout << "\n  Token Classification:\n";
-    std::cout << "  " << std::string(54, '-') << "\n";
-    std::cout << "  " << "Line" << "  " << std::left;
     printf("  %-8s %-20s %s\n", "Line", "Type", "Value");
-    std::cout << "  " << std::string(54, '-') << "\n";
 
     int keywords=0, identifiers=0, operators=0, punctuation=0, literals=0;
     for (auto& tok : tokens) {
@@ -112,7 +99,6 @@ int main(int argc, char* argv[]) {
     printf("    Literals:    %d\n", literals);
     printf("    Total:       %d\n", keywords+identifiers+operators+punctuation+literals);
 
-    // ── 2. PARSER — AST + Error Checking ─────────────────────────────────────
     banner("PHASE 2: PARSING — Abstract Syntax Tree");
     Parser parser(tokens);
     auto ast = parser.parse();
@@ -135,23 +121,21 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // ── 3. CODE GENERATION ────────────────────────────────────────────────────
     banner("PHASE 3: INTERMEDIATE CODE GENERATION (3-Address IR)");
     CodeGen cg;
     cg.generate(*ast);
     std::cout << "\n" << cg.intermediate();
 
-    banner("PHASE 4: ASSEMBLY CODE GENERATION (x86-64 like)");
+    banner("PHASE 4: ASSEMBLY CODE GENERATION");
     std::cout << "\n" << cg.assembly();
 
-    // ── 4. EXECUTION ─────────────────────────────────────────────────────────
     banner("PHASE 5: INTERPRETER EXECUTION — Program Output");
     std::cout << "\n";
     try {
         Interpreter interp;
         interp.execute(*ast);
 
-        std::cout << "\n\n  --- Symbol Table (final state) ---\n";
+        std::cout << "\n\n  Symbol Table (final state):\n";
         for (auto& [name, val] : interp.symbolTable()) {
             printf("  %-12s = %s\n", name.c_str(), valueToString(val).c_str());
         }

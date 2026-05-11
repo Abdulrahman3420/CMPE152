@@ -7,7 +7,7 @@ int main() {
     cout << "Result = " << c << endl;
     if (c >= 50) {
         c = c - 5;
-        cout << "After adjustment: " << c << endl;
+        cout << "After subtraction: " << c << endl;
     } else {
         cout << "c is less than 50" << endl;
     }

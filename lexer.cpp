@@ -28,7 +28,7 @@ void Lexer::skipLineComment() {
 }
 
 void Lexer::skipBlockComment() {
-    advance(); advance(); // consume /*
+    advance(); advance();
     while (pos < (int)source.size()) {
         if (current() == '*' && peek() == '/') { advance(); advance(); return; }
         advance();
@@ -48,13 +48,13 @@ Token Lexer::readNumber() {
 
 Token Lexer::readString() {
     int startLine = line;
-    advance(); // consume opening "
+    advance();
     std::string s;
     while (pos < (int)source.size() && current() != '"') {
         if (current() == '\\' && peek() == 'n') { advance(); advance(); s += '\n'; }
         else s += advance();
     }
-    if (current() == '"') advance(); // consume closing "
+    if (current() == '"') advance();
     return { TokenType::STRING_LIT, s, startLine };
 }
 
@@ -93,20 +93,12 @@ std::vector<Token> Lexer::tokenize() {
         int startLine = line;
         char c = current();
 
-        // Comments
         if (c == '/' && peek() == '/') { skipLineComment(); continue; }
         if (c == '/' && peek() == '*') { skipBlockComment(); continue; }
-
-        // String literals
         if (c == '"') { tokens.push_back(readString()); continue; }
-
-        // Numbers
         if (std::isdigit(c)) { tokens.push_back(readNumber()); continue; }
-
-        // Identifiers / keywords
         if (std::isalpha(c) || c == '_') { tokens.push_back(readIdentifierOrKeyword()); continue; }
 
-        // Multi-char operators
         advance();
         switch (c) {
             case '+':
